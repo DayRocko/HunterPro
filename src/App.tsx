@@ -157,114 +157,47 @@ export default function App() {
         </div>
       </section>
 
-      <div className="stats-bar">
-        <div className="stat-item">
-          <div className="stat-val">{vacancies.length}</div>
-          <div className="stat-label">VACANTES ENCONTRADAS</div>
+      <div className="top-filters-bar">
+        <div className="filter-dropdown">
+          <label>💰 Salario Mínimo</label>
+          <select value={minSalary} onChange={(e) => setMinSalary(parseInt(e.target.value))}>
+            <option value="4000000">$4.0M COP (≈ $1000 USD)</option>
+            <option value="5000000">$5.0M COP (≈ $1250 USD)</option>
+            <option value="6000000">$6.0M COP (≈ $1500 USD)</option>
+            <option value="8000000">$8.0M COP (≈ $2000 USD)</option>
+            <option value="10000000">$10.0M COP (≈ $2500 USD)</option>
+            <option value="12000000">$12.0M COP (≈ $3000 USD)</option>
+            <option value="15000000">$15.0M COP (≈ $3750 USD)</option>
+            <option value="20000000">$20.0M COP (≈ $5000 USD)</option>
+          </select>
         </div>
-        <div className="stat-item">
-          <div className="stat-val">
-            {vacancies.length > 0 
-              ? '$' + (vacancies.reduce((acc, v) => acc + (parseInt(v.salary?.replace(/\D/g, '') || '0') || 0), 0) / vacancies.length / 1000000).toFixed(1) + 'M'
-              : '—'}
-          </div>
-          <div className="stat-label">SALARIO PROMEDIO</div>
+
+        <div className="filter-dropdown">
+          <label>🌍 Modalidad</label>
+          <select value={filters.remoteOnly ? "remote" : "all"} onChange={(e) => setFilters(f => ({...f, remoteOnly: e.target.value === "remote"}))}>
+            <option value="all">Todas (Remoto, Híbrido, Presencial)</option>
+            <option value="remote">Solo Remoto / Híbrido</option>
+          </select>
         </div>
-        <div className="stat-item">
-          <div className="stat-val">25</div>
-          <div className="stat-label">PORTALES MAPEADOS</div>
+
+        <div className="filter-dropdown">
+          <label>🗣️ Idioma Español</label>
+          <select value={filters.spanishOnly ? "spanish" : "all"} onChange={(e) => setFilters(f => ({...f, spanishOnly: e.target.value === "spanish"}))}>
+            <option value="all">Cualquier Idioma</option>
+            <option value="spanish">Solo 100% Español</option>
+          </select>
         </div>
-        <div className="stat-item">
-          <div className="stat-val">{vacancies.filter(v => v.recruiter?.name && v.recruiter.name !== 'No identificado').length}</div>
-          <div className="stat-label">RECLUTADORES ID</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-val">{cv && vacancies.length > 0 ? Math.max(...vacancies.map(v => v.matchAnalysis?.score || 0)) + '%' : '—'}</div>
-          <div className="stat-label">MEJOR MATCH CV</div>
+
+        <div className="filter-dropdown">
+          <label>🇬🇧 Nivel de Inglés</label>
+          <select value={filters.maxEnglishA2 ? "a2" : "all"} onChange={(e) => setFilters(f => ({...f, maxEnglishA2: e.target.value === "a2"}))}>
+            <option value="all">Cualquier Nivel</option>
+            <option value="a2">Máximo Inglés A2</option>
+          </select>
         </div>
       </div>
 
       <div className="main">
-        <aside className="sidebar">
-          <div className="filter-section">
-            <div className="filter-title">💰 Salario Mínimo</div>
-            <div className="salary-range">
-              <div className="salary-current">${(minSalary / 1000000).toFixed(1)}M COP</div>
-              <input type="range" min="4000000" max="20000000" step="500000" value={minSalary} onChange={(e) => setMinSalary(parseInt(e.target.value))} />
-              <div className="salary-labels"><span>$4M</span><span>$20M</span></div>
-            </div>
-            <div style={{fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '4px'}}>
-              ≈ ${(minSalary / 4000).toFixed(0)} USD
-            </div>
-          </div>
-          
-          <div className="filter-section">
-            <div className="filter-title">🌍 Modalidad e Idioma</div>
-            <div className="toggle-row" onClick={() => setFilters(f => ({...f, remoteOnly: !f.remoteOnly}))} style={{cursor: 'pointer'}}>
-              Remoto / Híbrido
-              <div className={`toggle ${filters.remoteOnly ? 'on' : ''}`}></div>
-            </div>
-            <div className="toggle-row" onClick={() => setFilters(f => ({...f, spanishOnly: !f.spanishOnly}))} style={{cursor: 'pointer'}}>
-              Solo 100% Español
-              <div className={`toggle ${filters.spanishOnly ? 'on' : ''}`}></div>
-            </div>
-            <div className="toggle-row" onClick={() => setFilters(f => ({...f, maxEnglishA2: !f.maxEnglishA2}))} style={{cursor: 'pointer'}}>
-              Inglés Máx A2
-              <div className={`toggle ${filters.maxEnglishA2 ? 'on' : ''}`}></div>
-            </div>
-          </div>
-
-          <div className="filter-section">
-            <div className="filter-title">🎯 Perfiles de Prospección</div>
-            {['SDR', 'BDR', 'Inside Sales', 'Lead Gen'].map(role => (
-              <label key={role} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', cursor: 'pointer'}}>
-                <input type="checkbox" defaultChecked={query.includes(role)} onChange={() => setQuery(role)} style={{accentColor: 'var(--gold)'}} />
-                {role}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-section">
-            <div className="filter-title">🤝 Perfiles de Cierre</div>
-            {['Account Executive', 'Ejecutivo Comercial', 'Sales Specialist'].map(role => (
-              <label key={role} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', cursor: 'pointer'}}>
-                <input type="checkbox" defaultChecked={query.includes(role)} onChange={() => setQuery(role)} style={{accentColor: 'var(--gold)'}} />
-                {role}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-section">
-            <div className="filter-title">💎 Cuentas Estratégicas</div>
-            {['KAM', 'Enterprise AE'].map(role => (
-              <label key={role} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', cursor: 'pointer'}}>
-                <input type="checkbox" defaultChecked={query.includes(role)} onChange={() => setQuery(role)} style={{accentColor: 'var(--gold)'}} />
-                {role}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-section">
-            <div className="filter-title">🌱 Mantenimiento</div>
-            {['Account Manager', 'Customer Success', 'Farmer'].map(role => (
-              <label key={role} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', cursor: 'pointer'}}>
-                <input type="checkbox" defaultChecked={query.includes(role)} onChange={() => setQuery(role)} style={{accentColor: 'var(--gold)'}} />
-                {role}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-section">
-            <div className="filter-title">⚙️ RevOps</div>
-            {['RevOps', 'SalesOps', 'CRM Admin', 'Enablement'].map(role => (
-              <label key={role} style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', cursor: 'pointer'}}>
-                <input type="checkbox" defaultChecked={query.includes(role)} onChange={() => setQuery(role)} style={{accentColor: 'var(--gold)'}} />
-                {role}
-              </label>
-            ))}
-          </div>
-        </aside>
-
         <div className="results-area">
           <div className="results-header">
             <div className="results-count"><strong>{vacancies.length}</strong> vacantes encontradas</div>
